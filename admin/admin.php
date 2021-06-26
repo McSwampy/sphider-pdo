@@ -42,47 +42,29 @@ $database_funcs = Array ("database" => "default");
 	<div id="tabs">
 		<ul>
 		<?php
-		if ($stat_funcs[$f] ) {
-			$stat_funcs[$f] = "selected";
-		} else {
-			$stat_funcs[$f] = "default";
-		}
-
-		if ($site_funcs[$f] ) {
-			$site_funcs[$f] = "selected";
-		}else {
-			$site_funcs[$f] = "default";
-		}
-
-		if ($settings_funcs[$f] ) {
-			$settings_funcs[$f] = "selected";
-		} else {
-			$settings_funcs[$f] = "default";
-		}
-
-		if ($index_funcs[$f] ) {
-			$index_funcs[$f]  = "selected";
-		} else {
-			$index_funcs[$f] = "default";
-		}
-
-		if ($cat_funcs[$f] ) {
-			$cat_funcs[$f]  = "selected";
-		} else {
-			$cat_funcs[$f] = "default";
-		}
-
-		if ($clean_funcs[$f] ) {
-			$clean_funcs[$f]  = "selected";
-		} else {
-			$clean_funcs[$f] = "default";
-		}
-
-		if ($database_funcs[$f] ) {
-			$database_funcs[$f]  = "selected";
-		} else {
-			$database_funcs[$f] = "default";
-		}
+			// If true, set to selected, if not, to default text
+			selectedOrDefault($stat_funcs[$f]);
+			selectedOrDefault($site_funcs[$f]);
+			selectedOrDefault($settings_funcs[$f]);
+			selectedOrDefault($index_funcs[$f]);
+			selectedOrDefault($cat_funcs[$f]);
+			selectedOrDefault($clean_funcs[$f]);
+			selectedOrDefault($database_funcs[$f]);
+			selectedOrDefault($stat_funcs[$f]);
+			selectedOrDefault($stat_funcs[$f]);
+			
+			/**
+			 * Selected or default text
+			 * 
+			 * Adds selected or default text to passed variable if true
+			 * Note the passing of a variable as reference
+			 * 
+			 * [auth] Vincent Seaborne v.seaborne@gmail.com
+			 * 
+			 */
+			function selectedOrDefault(&$toCheck){
+				$toCheck = ($toCheck == true) ? 'selected' : 'default';
+			}
 		?>
 
 		<li><a href="admin.php?f=2" id="<?php print $site_funcs[$f]?>">Sites</a>  </li>
