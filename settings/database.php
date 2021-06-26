@@ -7,6 +7,6 @@
 	define('FULLTEXT', 'TEXT');		/* database type for long text strings (default = TEXT) */
 	define('AUTOINCREMENT', '');            /* only needed for SQLite (should be removed for MySQL) */
 	
-	$db = new PDO('sqlite:'.dirname(__FILE__).'/../sphider.sqlite');
-	// $db = new PDO('mysql:host='.DATABASE_HOST.'; dbname='.DATABASE_NAME, 'username', 'password');
+	// $db = new PDO('sqlite:'.dirname(__FILE__).'/../sphider.sqlite');
+	$db = new PDO('mysql:host='.DATABASE_HOST.'; port=3307; dbname='.DATABASE_NAME, 'root', '');
 ?>

@@ -11,6 +11,9 @@ $include_dir = "../include";
 include "auth.php";
 include "$include_dir/commonfuncs.php";
 include "spiderfuncs.php";
+include "../classes/db.php";
+// Instantiate new DB static class
+new DB();
 extract($_POST);
 $settings_dir = "../settings";
 $template_dir = "../templates";
@@ -103,7 +106,7 @@ $database_funcs = Array ("database" => "default");
 
 <?php
 	function list_cats($parent, $lev, $color, $message) {
-		global $db;
+		$color														= ($color =='white') ? 'white' : 'gray';
 		if ($lev == 0) {
 			?>
 			<div id="submenu">
@@ -119,22 +122,23 @@ $database_funcs = Array ("database" => "default");
 		$space = "";
 		for ($x = 0; $x < $lev; $x++)
 			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-
-		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent ORDER BY category";
-		$result = $db->query($query);
-		echo sql_errorstring(__FILE__,__LINE__);
-
-		while ($row = $result->fetch()) {
-			if ($color =="white")
-				$color = "grey";
-			else
-				$color = "white";
-
-			$id = $row['category_id'];
-			$cat = $row['category'];
-			print "<tr class=\"$color\"><td width=90% align=left>$space<a href=\"admin.php?f=edit_cat&cat_id=$id\">".stripslashes($cat). "</a></td><td><a href=\"admin.php?f=edit_cat&cat_id=$id\" id=\"small_button\">Edit</a></td><td> <a href=\"admin.php?f=11&cat_id=$id\" onclick=\"return confirm('Are you sure you want to delete? Subcategories will be lost.')\" id=\"small_button\">Delete</a></td></tr>\n";
-
-			$color = list_cats($id, $lev + 1, $color, "");
+		
+		// Use static DB class - Retrieve records by order by statement
+		$categoriesAr												= DB::getRecordsOrdered('categories', 'category', ['parent_num'=>$parent]);
+		foreach($categoriesAr as $cat){
+			echo '
+				<tr class="'.$color.'">
+					<td width="90%" align=left>
+						'.$space.'<a href="admin.php?f=edit_cat&id='.$cat['category_id'].'">'.stripslashes($cat['category']).'</a>
+					</td>
+					<td>
+						<a href="admin.php?f=edit_cat&cat_id='.$cat['category_id'].'" id="small_button">Edit</a>
+					</td>
+					<td>
+						<a href="admin.php?f=11&cat_id='.$cat['category_id'].'" onclick="return confirm(\'Are you sure you want to delete? Subcategories will be lost.\')" id="small_button">Delete</a>
+					</td>
+				</tr>
+			';
 		}
 
 		if ($lev == 0)
@@ -143,32 +147,34 @@ $database_funcs = Array ("database" => "default");
 	}
 
 	function walk_through_cats($parent, $lev, $site_id) {
-		global $db;
-		$space = "";
-		for ($x = 0; $x < $lev; $x++)
-			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-
-		$query = "SELECT * FROM ".TABLE_PREFIX."categories WHERE parent_num=$parent ORDER BY category";
-		$result = $db->query($query);
-		echo sql_errorstring(__FILE__,__LINE__);
-
-		while ($row = $result->fetch()) {
-			$id = $row['category_id'];
-			$cat = $row['category'];
-			$state = '';
-			if ($site_id <> '') {
-				$result2 = $db->query("select * from ".TABLE_PREFIX."site_category where site_id=$site_id and category_id=$id");
-				echo sql_errorstring(__FILE__,__LINE__);
-
-				if ($result2->fetch()) {
+		$space											= "";
+		for($x = 0; $x < $lev; $x++)
+			$space										.= '&nbsp;&nbsp;&nbsp;&nbsp;';
+		$cats											= DB::getSQL('
+			SELECT
+				cat.*,
+				sCat.site_id							AS SITE_ID
+			FROM
+				'.TABLE_PREFIX.'categories				cat
+			LEFT JOIN
+				'.TABLE_PREFIX.'site_category			sCat
+			ON
+				sCat.site_id							= \''.$site_id.'\'
+			AND sCat.category_id						= cat.category_id
+			WHERE
+				parent_num								= \''.$parent.'\'
+			ORDER By
+				category
+		');
+		foreach($cats as $cat){
+			if(!empty($site_id)){
+				if(!empty($cat['SITE_ID'])){
 					$state = "checked";
 					$result2->closeCursor();
 				}
 			}
-
-			print $space . "<input type=checkbox name=cat[$id] $state>" . $cat . "<br/>\n";
-			;
-			walk_through_cats($id, $lev + 1, $site_id);
+			echo '<input type=checkbox name=cat['.$cat['category_id'].'] '.$state.'>'.$cat['category'].'<br/>\n';
+			walk_through_cats($cat['category_id'], $lev + 1, $site_id);
 		}
 	}
 
@@ -190,7 +196,7 @@ function addcatform($parent) {
 		if (!sql_errorstring(__FILE__,__LINE__)) {
 			if ($row = $result->fetch()) {
 				$par=$row[0];
-				$query = "SELECT Category_ID, Category FROM ".TABLE_PREFIX."categories WHERE Category_ID='$row[1]'";
+				$query = "SELECT category_id, category FROM ".TABLE_PREFIX."categories WHERE category_id='$row[1]'";
 				$result2 = $db->query($query);
 				echo sql_errorstring(__FILE__,__LINE__);
 				if ($row = $result2->fetch()) {
@@ -233,18 +239,12 @@ function addcatform($parent) {
 
 
 	function addcat($category, $parent) {
-		global $db;
-		if (strlen($category) == 0)
+		if(empty($category))
 			return;
-		if ($parent == "")
-			$parent = 0;
-		$stat = $db->prepare("INSERT INTO ".TABLE_PREFIX."categories (category, parent_num) VALUES (:$category, :parent)");
-		$stat->execute(array(':category' => $category, ':parent' => $parent));
-		If (!sql_errorstring(__FILE__,__LINE__)) {
-			return "<center><b>Category $category added.</b></center>" ;
-		} else {
-			return sql_errorstring(__FILE__,__LINE__);;
-		}
+		$parent									= ($parent == '') ? 0 : $parent;
+		$recId									= DB::insert(['category'=>$category, 'parent_num'=>$parent], 'categories');
+		if($recId != false)
+			return "<center><b>Category $category added.</b></center>";
 	}
 
 
