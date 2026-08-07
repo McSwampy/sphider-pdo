@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            body {
+                background-color: #333333;
+                color: #c3c3c3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: system-ui;
+            }
+            body div {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            body div h1, body div h2 {
+                color: #ffc000;
+            }
+            body div h1 {
+                font-size: xxx-large;
+                margin-bottom: 20pt;
+            }
+            body div h2 {
+                font-size: x-large;
+                margin-bottom: 10pt;
+            }
+            body div p {
+                padding: 5pt;
+                font-size: small;
+                text-shadow: 1pt 1pt black, -1pt -1pt black, 0pt 0pt 5pt black;
+            }
+        </style>
+        <title>Internal Error</title>
+    </head>
+    <body>
+        <div>
+        <h1>Internal error</h1>
+        {% if error_source_name != '' %}
+            <h2>{{ error_source_name }}</h2>
+        {% endif %}
+        {% if exception != '' %}
+            <p>{{ exception.getMessage() }}</p>
+            <p>File: {{ exception.getFile() }}</p>
+            <p>Line: {{ exception.getLine() }}</p>
+        {% endif %}
+        </div>
+    </body>
+</html>
