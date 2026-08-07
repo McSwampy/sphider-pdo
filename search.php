@@ -2,99 +2,94 @@
 /*******************************************
 * Sphider Version 2.0.x
 * This program is licensed under the GNU GPL.
-* By Ando Saabas          ando(a t)cs.ioc.ee
+* Authors:
+* Ando Saabas          ando(a t)cs.ioc.ee
+* McSwampy             sylph.co.za
 ********************************************/
+
 error_reporting (E_ALL | E_STRICT);
 
 try {
 
+    // Load framework on start. Includes composer vendor libraries
     require_once __DIR__.'/framework/autoload.php';
     
-    $include_dir = "./include";
+    require_once __DIR__.'/include/autoload.php';
     $template_dir = "./templates";
     $settings_dir = "./settings";
     $language_dir = "./languages";
 
-    require_once("$include_dir/commonfuncs.php");
     require_once("$settings_dir/database.php");
-    require_once("$include_dir/searchfuncs.php");
-    require_once("$include_dir/categoryfuncs.php");
     require_once("$settings_dir/conf.php");
 
-    if (isset($_POST['query']))
-        $query = sanitize($_POST['query']);
-    else if (isset($_GET['query']))
-        $query = sanitize($_GET['query']);
-
-    if (isset($_POST['search']))
-        $search = sanitize($_POST['search']);
-    else if (isset($_GET['search']))
-        $search = sanitize($_GET['search']);
-
-    if (isset($_POST['lang']))
-        $language = $_POST['lang'];
-    else if (isset($_GET['lang']))
-        $language = $_GET['lang'];
+    $query = sanitize($_POST['query'] ?? $_GET['query'] ?? '');
+    $search = sanitize($_POST['search'] ?? $_GET['search'] ?? '');
+    $language = sanitize($_POST['lang'] ?? $_GET['lang'] ?? 'en');
+    $start = sanitize($_POST['start'] ?? $_GET['start'] ?? '');
+    $domain = sanitize($_POST['domain'] ?? '');
+    $type = sanitize($_POST['type'] ?? '');
+    $catid = sanitize($_POST['catid'] ?? '');
+    $category = sanitize($_POST['category'] ?? '');
+    $results = sanitize($_POST['results'] ?? '');
+    $adv = sanitize($_POST['adv'] ?? '');
+    
     require_once("$language_dir/$language-language.php");
 
-    if (isset($_POST['start']))
-        $start = sanitize($_POST['start']);
-    else if (isset($_GET['start']))
-        $start = sanitize($_GET['start']);
+    if (
+        !empty($query) ||
+        isset($sph_messages['SearchPrompt']) &&
+        strcasecmp($query, $sph_messages['SearchPrompt']) == 0
+    ) {
+        $query = '';
+    }
 
-    if (isset($_POST['domain']))
-        $domain = sanitize($_POST['domain']);
-    if (isset($_POST['type']))
-        $type = sanitize($_POST['type']);
-    if (isset($_POST['catid']))
-        $catid = sanitize($_POST['catid']);
-    if (isset($_POST['category']))
-        $category = sanitize($_POST['category']);
-    if (isset($_POST['results']))
-        $results = sanitize($_POST['results']);
-    if (isset($_POST['adv']))
-        $adv = sanitize($_POST['adv']);
-
-    if (!isset($query)
-        || isset($sph_messages['SearchPrompt']) && strcasecmp($query, $sph_messages['SearchPrompt']) == 0)
-        $query = "";
-
-
-    if (file_exists("$template_dir/$template/header_$language.html"))
+    if (file_exists("$template_dir/$template/header_$language.html")) {
         include_once("$template_dir/$template/header_$language.html");
-    else
+    } else {
         require_once("$template_dir/$template/header.html");
+    }
 
-    if (!isset($type) || ($type != "or" && $type != "and" && $type != "phrase"))
-        $type = "and";
+    if (
+        empty($type) ||
+        (
+            $type != "or" &&
+            $type != "and" &&
+            $type != "phrase"
+        )
+    ) {
+        $type = 'and';
+    }
 
-    if (!isset($domain) || preg_match("/[^a-z0-9-.]+/", $domain))
-        $domain="";
+    if (
+        !empty($domain) &&
+        preg_match("/[^a-z0-9-.]+/", $domain)
+    ) {
+        $domain = '';
+    }
 
-    if (isset($results) && $results != "")
+    if (!empty($results)) {
         $results_per_page = $results;
+    }
 
-    //get_magic_quotes_gpc() has been useless ever since PHP 5.4.0
-    //if (isset($query) && get_magic_quotes_gpc())
-    //    $query = stripslashes($query);
+    if (empty((int)$catid)) {
+        $catid = 0;
+    }
 
-    if (!isset($catid) || !is_numeric($catid))
-        $catid = "";
+    if (empty((int)$category)) {
+        $category = '';
+    }
 
-    if (!isset($category) || !is_numeric($category))
-        $category = "";
+    if ($catid > 0) {
+        $tpl_['category'] = sql_fetch_all('SELECT category FROM categories WHERE category_id=:catid', array(':catid' => (int)$_REQUEST['catid']));
+    }
 
-    if (isset($catid) && is_numeric($catid))
-        $tpl_['category'] = sql_fetch_all('SELECT category FROM '.TABLE_PREFIX.'categories WHERE category_id=:catid', array(':catid' => (int)$_REQUEST['catid']));
-
-    $count_level0 = sql_fetch_all('SELECT count(*) FROM '.TABLE_PREFIX.'categories WHERE parent_num=:parent', array(':parent' => 0));
+    $count_level0 = sql_fetch_all('SELECT count(*) FROM categories WHERE parent_num=:parent', array(':parent' => 0));
     $has_categories = 0;
 
     if ($count_level0)
         $has_categories = $count_level0[0][0];
 
-
-    require_once("$template_dir/$template/search_form.html");
+    // require_once("$template_dir/$template/search_form.html");
 
     date_default_timezone_set("Etc/UCT");
 
@@ -145,7 +140,7 @@ try {
         if (strpos($query, '\0') != FALSE)
             $query = "";
         $search_results = get_search_results($query, $start, $category, $type, $results, $domain);
-        require("$template_dir/$template/search_results.html");
+        // require("$template_dir/$template/search_results.html");
         break;
     default:
         if ($show_categories) {
@@ -154,15 +149,21 @@ try {
             } else {
                 $cat_info = get_categories_view();
             }
-            require("$template_dir/$template/categories.html");
         }
         break;
     }
 
-    if (file_exists("$template_dir/$template/footer_$language.html"))
-        include_once("$template_dir/$template/footer_$language.html");
-    else
-        require_once("$template_dir/$template/footer.html");
+    \Templating\Manager::ShowTemplate(
+        'search/search.html',
+        [
+            'query' => $query,
+            'results_per_page' => $results_per_page,
+            'cat_info' => $cat_info,
+            'sph_messages' => $sph_messages,
+            'REQUEST' => $_REQUEST
+        ]
+    );
+
 } catch (\Throwable $thrown) {
 
     try {

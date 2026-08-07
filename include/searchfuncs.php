@@ -2,12 +2,14 @@
 /*******************************************
 * Sphider Version 1.3.x
 * This program is licensed under the GNU GPL.
-* By Ando Saabas          ando(a t)cs.ioc.ee
+* Authors:
+* Ando Saabas          ando(a t)cs.ioc.ee
+* McSwampy             sylph.co.za
 ********************************************/
 
 error_reporting (E_ALL | E_STRICT);
 
-require_once "$include_dir/double_metaphone.php";
+require_once __DIR__."/double_metaphone.php";
 
     function swap_max (&$arr, $start, $domain) {
         $pos  = $start;
