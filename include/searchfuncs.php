@@ -674,7 +674,7 @@ function get_search_results($query, $start, $category, $searchtype, $results, $d
                 }
                 $fulltxt = substr($fulltxt, $begin_pos, $desc_length);
                 $fulltxt = substr($fulltxt, 0, strrpos($fulltxt, " "));
-                $fulltxt = $fulltxt;
+                
             }
 
             $weight = number_format($result[$i]['weight']/$maxweight*100, 2);

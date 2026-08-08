@@ -10,6 +10,8 @@
 
 error_reporting(E_ALL);
 
+	$table_prefix = constant('settings')['database']['table_prefix'];
+
   set_time_limit(0);
   $include_dir = "../include";
   include "auth.php";
@@ -96,7 +98,7 @@ error_reporting(E_ALL);
   } else {
 
     if ($reindex == 1 && $command_line == 1) {
-      $result=$db->query("SELECT url, spider_depth, required, disallowed, can_leave_domain FROM ".TABLE_PREFIX."sites WHERE url=".$db->quote($url));
+      $result=$db->query("SELECT url, spider_depth, required, disallowed, can_leave_domain FROM ".$table_prefix."sites WHERE url=".$db->quote($url));
       echo sql_errorstring(__FILE__,__LINE__);
       if ($row=$result->fetch()) {
         $url = $row[0];
@@ -142,6 +144,7 @@ error_reporting(E_ALL);
     global $supdomain, $index_vpaths;
     global $user_agent, $tmp_urls, $delay_time, $domain_arr;
     global $db;
+    $table_prefix = constant('settings')['database']['table_prefix'];
     $deletable = 0;
 
     $url_status = url_status($url);
@@ -151,11 +154,11 @@ error_reporting(E_ALL);
       $url = preg_replace("/ /", "", url_purify($url_status['path'], $url, $can_leave_domain));
 
       if ($url <> '') {
-        $result = $db->query("SELECT link FROM ".TABLE_PREFIX."temp WHERE link=".$db->quote($url)." AND id=".$db->quote($sessid));
+        $result = $db->query("SELECT link FROM ".$table_prefix."temp WHERE link=".$db->quote($url)." AND id=".$db->quote($sessid));
         echo sql_errorstring(__FILE__,__LINE__);
         if ($result->fetch()) {
           $result->closeCursor();
-          $db->exec("INSERT INTO ".TABLE_PREFIX."temp (link, level, id) VALUES (".$db->quote($url).", ".$db->quote($level).", ".$db->quote($sessid).")");
+          $db->exec("INSERT INTO ".$table_prefix."temp (link, level, id) VALUES (".$db->quote($url).", ".$db->quote($level).", ".$db->quote($sessid).")");
           echo sql_errorstring(__FILE__,__LINE__);
         }
       }
@@ -250,7 +253,7 @@ error_reporting(E_ALL);
               if (!isset($tmp_urls[$thislink]) || $tmp_urls[$thislink] != 1) {
                 $tmp_urls[$thislink] = 1;
                 $numoflinks++;
-                $db->exec("INSERT INTO ".TABLE_PREFIX."temp (link, level, id) VALUES (".$db->quote($thislink).", ".$db->quote($level).", ".$db->quote($sessid).")");
+                $db->exec("INSERT INTO ".$table_prefix."temp (link, level, id) VALUES (".$db->quote($thislink).", ".$db->quote($level).", ".$db->quote($sessid).")");
                 echo sql_errorstring(__FILE__,__LINE__);
               }
             }
@@ -296,13 +299,13 @@ error_reporting(E_ALL);
             $pageSize = $db->quote($pageSize);
             $Qmd5sum = $db->quote($newmd5sum);
             if ($md5sum == '') {
-              $db->exec("INSERT INTO ".TABLE_PREFIX."links (site_id, url, title, description, language, fulltxt, indexdate, size, md5sum, level) VALUES ($site_id, $url, $title, $desc, $language, $fulltxt, $tstamp, $pageSize, $Qmd5sum, $thislevel)");
+              $db->exec("INSERT INTO ".$table_prefix."links (site_id, url, title, description, language, fulltxt, indexdate, size, md5sum, level) VALUES ($site_id, $url, $title, $desc, $language, $fulltxt, $tstamp, $pageSize, $Qmd5sum, $thislevel)");
               $error = sql_errorstring(__FILE__,__LINE__);
               if ($error) {
                 echo $error;
                 printStandardReport('skipped', $command_line);
               } else {
-                $result = $db->query("SELECT link_id FROM ".TABLE_PREFIX."links WHERE url=$url");
+                $result = $db->query("SELECT link_id FROM ".$table_prefix."links WHERE url=$url");
                 echo sql_errorstring(__FILE__,__LINE__);
                 $row = $result->fetch();
                 $link_id = $row[0];
@@ -311,18 +314,18 @@ error_reporting(E_ALL);
                 printStandardReport('indexed', $command_line);
               }
             } else if (($md5sum <> '') && ($md5sum <> $newmd5sum)) { //if page has changed, start updating
-              $result = $db->query("SELECT link_id FROM ".TABLE_PREFIX."links WHERE url=$url");
+              $result = $db->query("SELECT link_id FROM ".$table_prefix."links WHERE url=$url");
               echo sql_errorstring(__FILE__,__LINE__);
               $row = $result->fetch();
               $link_id = $row[0];
               $result->closeCursor();
               for ($i=0;$i<=15; $i++) {
                 $char = dechex($i);
-                $db->exec("DELETE FROM ".TABLE_PREFIX."link_keyword$char WHERE link_id=$link_id");
+                $db->exec("DELETE FROM ".$table_prefix."link_keyword$char WHERE link_id=$link_id");
                 echo sql_errorstring(__FILE__,__LINE__);
               }
               save_keywords($wordarray, $link_id, $dom_id);
-              $db->exec("UPDATE ".TABLE_PREFIX."links SET title=$title, description=$desc, language=$language, fulltxt=$fulltxt, indexdate=$tstamp, size=$pageSize, md5sum=$Qmd5sum, level=$thislevel WHERE link_id=$link_id");
+              $db->exec("UPDATE ".$table_prefix."links SET title=$title, description=$desc, language=$language, fulltxt=$fulltxt, indexdate=$tstamp, size=$pageSize, md5sum=$Qmd5sum, level=$thislevel WHERE link_id=$link_id");
               echo sql_errorstring(__FILE__,__LINE__);
               printStandardReport('re-indexed', $command_line);
             }
@@ -353,9 +356,10 @@ error_reporting(E_ALL);
   function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain) {
     global $command_line, $mainurl,  $tmp_urls, $domain_arr, $all_keywords;
     global $db;
+    $table_prefix = constant('settings')['database']['table_prefix'];
 
     if (!isset($all_keywords) || !is_array($all_keywords) || count($all_keywords) <= 0) {
-      $result = $db->query("SELECT keyword_ID, keyword FROM ".TABLE_PREFIX."keywords");
+      $result = $db->query("SELECT keyword_ID, keyword FROM ".$table_prefix."keywords");
       echo sql_errorstring(__FILE__,__LINE__);
       while($row=$result->fetch())
         $all_keywords[$row[1]] = $row[0];
@@ -377,7 +381,7 @@ error_reporting(E_ALL);
     else
       $port = PORT_HTTP;
 
-    $result = $db->query("select site_id from ".TABLE_PREFIX."sites where url='$url'");
+    $result = $db->query("select site_id from ".$table_prefix."sites where url='$url'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
     $site_id = $row[0];
@@ -387,26 +391,26 @@ error_reporting(E_ALL);
     $tstamp = "'".date("Y-m-d")."'";
 
     if ($site_id != "" && $reindex == 1) {
-      $db->exec("insert into ".TABLE_PREFIX."temp (link, level, id) values ('$url', 0, '$sessid')");
+      $db->exec("insert into ".$table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
       echo sql_errorstring(__FILE__,__LINE__);
-      $result = $db->query("select url, level from ".TABLE_PREFIX."links where site_id = $site_id");
+      $result = $db->query("select url, level from ".$table_prefix."links where site_id = $site_id");
       while ($row = $result->fetch()) {
         $site_link = $row['url'];
         $link_level = $row['level'];
         if ($site_link != $url) {
-          $db->exec("insert into ".TABLE_PREFIX."temp (link, level, id) values ('$site_link', $link_level, '$sessid')");
+          $db->exec("insert into ".$table_prefix."temp (link, level, id) values ('$site_link', $link_level, '$sessid')");
         }
       }
 
-      $qry = "update ".TABLE_PREFIX."sites set indexdate=$tstamp, spider_depth=$maxlevel, required='$url_inc'," .
+      $qry = "update ".$table_prefix."sites set indexdate=$tstamp, spider_depth=$maxlevel, required='$url_inc'," .
           "disallowed='$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id";
       $db->exec($qry);
       echo sql_errorstring(__FILE__,__LINE__);
     } else if ($site_id == "") {
-      $db->exec("insert into ".TABLE_PREFIX."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
+      $db->exec("insert into ".$table_prefix."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
           "values ('$url', $tstamp, $maxlevel, '$url_inc', '$url_not_inc', $can_leave_domain)");
       echo sql_errorstring(__FILE__,__LINE__);
-      $result = $db->query("select site_ID from ".TABLE_PREFIX."sites where url='$url'");
+      $result = $db->query("select site_ID from ".$table_prefix."sites where url='$url'");
       $row = $result->fetch();
       $site_id = $row[0];
       $result->closeCursor();
@@ -418,7 +422,7 @@ error_reporting(E_ALL);
     }
 
 
-    $result = $db->query("select site_id, temp_id, level, count, num from ".TABLE_PREFIX."pending where site_id='$site_id'");
+    $result = $db->query("select site_id, temp_id, level, count, num from ".$table_prefix."pending where site_id='$site_id'");
     echo sql_errorstring(__FILE__,__LINE__);
     $row = $result->fetch();
     $pending = ($row == false) ? '' : $row[0];
@@ -426,11 +430,11 @@ error_reporting(E_ALL);
     $level = 0;
     $domain_arr = get_domains();
     if ($pending == '') {
-      $db->exec("insert into ".TABLE_PREFIX."temp (link, level, id) values ('$url', 0, '$sessid')");
+      $db->exec("insert into ".$table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
       echo sql_errorstring(__FILE__,__LINE__);
     } else if ($pending != '') {
       printStandardReport('continueSuspended',$command_line);
-      $result = $db->query("select temp_id, level, count from ".TABLE_PREFIX."pending where site_id='$site_id'");
+      $result = $db->query("select temp_id, level, count from ".$table_prefix."pending where site_id='$site_id'");
       echo sql_errorstring(__FILE__,__LINE__);
       $row = $result->fetch();
       $sessid = $row[1];
@@ -443,7 +447,7 @@ error_reporting(E_ALL);
     }
 
     if ($reindex != 1) {
-      $db->exec("insert into ".TABLE_PREFIX."pending (site_id, temp_id, level, count) values ('$site_id', '$sessid', '0', '0')");
+      $db->exec("insert into ".$table_prefix."pending (site_id, temp_id, level, count) values ('$site_id', '$sessid', '0', '0')");
       echo sql_errorstring(__FILE__,__LINE__);
     }
 
@@ -464,7 +468,7 @@ error_reporting(E_ALL);
 
       $links = array();
 
-      $result = $db->query("select distinct link from ".TABLE_PREFIX."temp where level=$level AND id='$sessid' order by link");
+      $result = $db->query("select distinct link from ".$table_prefix."temp where level=$level AND id='$sessid' order by link");
       echo sql_errorstring(__FILE__,__LINE__);
       $row = $result->fetch();
       if (! $row) {
@@ -523,20 +527,20 @@ error_reporting(E_ALL);
 
         if ($forbidden == 0) {
           printRetrieving($num, $thislink, $command_line);
-          $query = "select md5sum, indexdate from ".TABLE_PREFIX."links where url='$thislink'";
+          $query = "select md5sum, indexdate from ".$table_prefix."links where url='$thislink'";
           $result = $db->query($query);
           echo sql_errorstring(__FILE__,__LINE__);
           $row = $result->fetch();
           $result->closeCursor();
           if (! $row) {
             index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex);
-            $db->exec("update ".TABLE_PREFIX."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+            $db->exec("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
             echo sql_errorstring(__FILE__,__LINE__);
           }else if ($reindex == 1) {
             $md5sum = $row['md5sum'];
             $indexdate = $row['indexdate'];
             index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex);
-            $db->exec("update ".TABLE_PREFIX."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+            $db->exec("update ".$table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
             echo sql_errorstring(__FILE__,__LINE__);
           }else {
             printStandardReport('inDatabase',$command_line);
@@ -548,9 +552,9 @@ error_reporting(E_ALL);
       $level++;
     }
 
-    $db->exec("delete from ".TABLE_PREFIX."temp where id = '$sessid'");
+    $db->exec("delete from ".$table_prefix."temp where id = '$sessid'");
     echo sql_errorstring(__FILE__,__LINE__);
-    $db->exec("delete from ".TABLE_PREFIX."pending where site_id = '$site_id'");
+    $db->exec("delete from ".$table_prefix."pending where site_id = '$site_id'");
     echo sql_errorstring(__FILE__,__LINE__);
     printStandardReport('completed',$command_line);
 
@@ -559,7 +563,8 @@ error_reporting(E_ALL);
 
   function index_all() {
     global $db;
-    $result=$db->query("select url, spider_depth, required, disallowed, can_leave_domain from ".TABLE_PREFIX."sites");
+    $table_prefix = constant('settings')['database']['table_prefix'];
+    $result=$db->query("select url, spider_depth, required, disallowed, can_leave_domain from ".$table_prefix."sites");
     echo sql_errorstring(__FILE__,__LINE__);
     while ($row=$result->fetch()) {
       $url = $row[0];
@@ -581,7 +586,8 @@ error_reporting(E_ALL);
 
   function get_temp_urls ($sessid) {
     global $db;
-    $result = $db->query("select link from ".TABLE_PREFIX."temp where id='$sessid'");
+    $table_prefix = constant('settings')['database']['table_prefix'];
+    $result = $db->query("select link from ".$table_prefix."temp where id='$sessid'");
     echo sql_errorstring(__FILE__,__LINE__);
     $tmp_urls = Array();
     while ($row=$result->fetch()) {
@@ -593,7 +599,8 @@ error_reporting(E_ALL);
 
   function get_domains () {
     global $db;
-    $result = $db->query("select domain_id, domain from ".TABLE_PREFIX."domains");
+    $table_prefix = constant('settings')['database']['table_prefix'];
+    $result = $db->query("select domain_id, domain from ".$table_prefix."domains");
     echo sql_errorstring(__FILE__,__LINE__);
     $domains = Array();
     while ($row=$result->fetch()) {
@@ -623,10 +630,12 @@ error_reporting(E_ALL);
     if ($log_handle) {
       $log_report = "Log saved into $log_file";
     }
-    mail($admin_email, "Sphider indexing report", "Sphider has finished indexing $indexed at ".date("y-m-d H:i:s").". ".$log_report);
+    mail(
+      constant('settings')['admin']['email'],
+      "Sphider indexing report",
+      "Sphider has finished indexing $indexed at ".date("y-m-d H:i:s").". ".$log_report
+    );
   }
   if ( $log_handle) {
     fclose($log_handle);
   }
-
-?>
