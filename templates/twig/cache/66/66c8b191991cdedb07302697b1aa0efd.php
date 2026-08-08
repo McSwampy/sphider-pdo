@@ -59,28 +59,22 @@ class __TwigTemplate_280d61cb340e69f6b62438d28b1c8761 extends Template
 \t<td align=\"center\">
 \t<form action=\"search.php\" method=\"post\">
         <input
-            type=\"text\"
-            name=\"query\"
-            id=\"query\"
-            size=\"40\"
-            value=\"";
-        // line 24
+            type=\"text\" name=\"query\" id=\"query\"
+            size=\"40\" value=\"";
+        // line 21
         yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(($context["query"] ?? null), "html", null, true);
-        yield "\"
-            action=\"include/js_suggest/suggest.php\"
-            columns=\"2\"
-            autocomplete=\"off\"
-            delay=\"1500\"
+        yield "\" action=\"include/js_suggest/suggest.php\"
+            columns=\"2\" autocomplete=\"off\" delay=\"1500\"
         >
         <input type=\"submit\" value=\"";
-        // line 30
-        yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Search", [], "any", false, false, false, 30), "html", null, true);
+        // line 24
+        yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Search", [], "any", false, false, false, 24), "html", null, true);
         yield "\">
 
 ";
-        // line 32
+        // line 26
         if (((($context["adv"] ?? null) == 1) || (($context["advanced_search"] ?? null) == 1))) {
-            // line 33
+            // line 27
             yield "\t<table width = \"100%\">
 \t<tr>
 \t\t<td width=\"40%\"><input type=\"radio\" name=\"type\" value=\"and\" <?php print \$type==\x27and\x27?\x27checked\x27:\x27\x27?>><?php print \$sph_messages[\x27andSearch\x27]?></td>
@@ -89,56 +83,56 @@ class __TwigTemplate_280d61cb340e69f6b62438d28b1c8761 extends Template
 \t\t<td><input type=\"radio\" name=\"type\" value=\"phrase\" <?php print \$_REQUEST[\x27type\x27]==\x27phrase\x27?\x27checked\x27:\x27\x27?>><?php print \$sph_messages[\x27phraseSearch\x27]?></td>
 \t\t<td>
             ";
-            // line 40
-            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "show", [], "any", false, false, false, 40), "html", null, true);
+            // line 34
+            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "show", [], "any", false, false, false, 34), "html", null, true);
             yield "
 \t\t\t<select name=\x27results\x27>
                 <option value=\"10\" ";
-            // line 42
+            // line 36
             if ((($context["results_per_page"] ?? null) == 10)) {
                 yield "selected";
             }
             yield ">10</option>
                 <option value=\"10\" ";
-            // line 43
+            // line 37
             if ((($context["results_per_page"] ?? null) == 10)) {
                 yield "selected";
             }
             yield ">20</option>
                 <option value=\"10\" ";
-            // line 44
+            // line 38
             if ((($context["results_per_page"] ?? null) == 10)) {
                 yield "selected";
             }
             yield ">50</option>
                 <option value=\"10\" ";
-            // line 45
+            // line 39
             if ((($context["results_per_page"] ?? null) == 10)) {
                 yield "selected";
             }
             yield ">100</option>
 \t\t\t</select>
             ";
-            // line 47
-            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "resultsPerPage", [], "any", false, false, false, 47), "html", null, true);
+            // line 41
+            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "resultsPerPage", [], "any", false, false, false, 41), "html", null, true);
             yield "
 \t  \t</td>
 \t</tr>
 \t</table>
 ";
         }
-        // line 52
+        // line 46
         yield "
 ";
-        // line 53
+        // line 47
         if ((($context["catid"] ?? null) > 0)) {
-            // line 54
+            // line 48
             yield "    <b>";
-            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Search", [], "any", false, false, false, 54), "html", null, true);
+            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Search", [], "any", false, false, false, 48), "html", null, true);
             yield "</b>
 ";
         }
-        // line 56
+        // line 50
         yield "<?php if (isset(\$catid) && is_numeric(\$catid)){?>
 \t<center><b><?php print \$sph_messages[\x27Search\x27]?></b>: <input type=\"radio\" name=\"category\" value=\"<?php print \$catid?>\"><?php print \$sph_messages[\x27Only in category\x27]?> \"<?php print \$tpl_[\x27category\x27][0][\x27category\x27]?>\x27\" <input type=\"radio\" name=\"category\" value=\"-1\" checked><?php print \$sph_messages[\x27All sites\x27]?></center>
 <?php  }?>
@@ -333,7 +327,7 @@ if (!isset(\$adv_qry))
      */
     public function getDebugInfo(): array
     {
-        return array (  142 => 56,  136 => 54,  134 => 53,  131 => 52,  123 => 47,  116 => 45,  110 => 44,  104 => 43,  98 => 42,  93 => 40,  84 => 33,  82 => 32,  77 => 30,  68 => 24,  43 => 1,);
+        return array (  136 => 50,  130 => 48,  128 => 47,  125 => 46,  117 => 41,  110 => 39,  104 => 38,  98 => 37,  92 => 36,  87 => 34,  78 => 27,  76 => 26,  71 => 24,  65 => 21,  43 => 1,);
     }
 
     public function getSourceContext(): Source

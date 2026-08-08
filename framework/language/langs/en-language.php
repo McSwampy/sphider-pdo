@@ -1,6 +1,5 @@
 <?php
-// Strings starting with '%'  will be automatically replaced by script. Do not translate these
-$sph_messages =  Array (
+return array (
 	"Categories" => "Categories",
 	"CATEGORIES" => "CATEGORIES",
 	"Untitled" => "Untitled document",
@@ -26,4 +25,3 @@ $sph_messages =  Array (
 	"DidYouMean" => "Did you mean",
 	"SearchPrompt" => "Search text"
 );
-?>

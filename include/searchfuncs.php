@@ -152,8 +152,9 @@ require_once __DIR__."/double_metaphone.php";
         global $did_you_mean_enabled,$did_you_mean_always;
         global $matchless,$equivalent,$language;
         global $db;
+	    $prefix = constant('settings')['database']['table_prefix'];
         $possible_to_find = 1;
-        $stat = $db->prepare("SELECT domain_id FROM ".TABLE_PREFIX."domains WHERE domain = :domain");
+        $stat = $db->prepare("SELECT domain_id FROM ".$prefix."domains WHERE domain = :domain");
         $stat->execute(array(':domain' => $domain));
         if ($row = $stat->fetch()) {
             $domain_qry = "and domain = ".$row[0];
@@ -179,7 +180,7 @@ require_once __DIR__."/double_metaphone.php";
                 $searchword = $wordarray[$not_words];
             $wordmd5 = substr(md5($searchword), 0, 1);
 
-            $stat = $db->prepare("SELECT link_id from ".TABLE_PREFIX."link_keyword$wordmd5, ".TABLE_PREFIX."keywords where ".TABLE_PREFIX."link_keyword$wordmd5.keyword_id= ".TABLE_PREFIX."keywords.keyword_id and keyword = :keyword");
+            $stat = $db->prepare("SELECT link_id from ".$prefix."link_keyword$wordmd5, ".$prefix."keywords where ".$prefix."link_keyword$wordmd5.keyword_id= ".$prefix."keywords.keyword_id and keyword = :keyword");
             $stat->execute(array(':keyword' => $searchword));
             while ($row = $stat->fetch())
                 $notlist[$not_words]['id'][$row[0]] = 1;
@@ -197,7 +198,7 @@ require_once __DIR__."/double_metaphone.php";
             $searchword = str_replace("|", "", $searchword);
             $searchword = str_replace("%", "|%", $searchword);
             $searchword = str_replace("_", "|_", $searchword);
-            $stat = $db->prepare("SELECT link_id from ".TABLE_PREFIX."links where fulltxt like :keyword escape '|'");
+            $stat = $db->prepare("SELECT link_id from ".$prefix."links where fulltxt like :keyword escape '|'");
             $stat->execute(array(':keyword' => "%".$searchword."%"));
             echo sql_errorstring(__FILE__,__LINE__);
             $row = $stat->fetch();
@@ -216,7 +217,7 @@ require_once __DIR__."/double_metaphone.php";
         if ($category> 0 && $possible_to_find==1) {
             $allcats = get_cats($category);
             $catlist = implode(",", $allcats);
-            $result = $db->query("SELECT link_id FROM ".TABLE_PREFIX."links, ".TABLE_PREFIX."sites, ".TABLE_PREFIX."categories, ".TABLE_PREFIX."site_category where ".TABLE_PREFIX."links.site_id = ".TABLE_PREFIX."sites.site_id and ".TABLE_PREFIX."sites.site_id = ".TABLE_PREFIX."site_category.site_id and ".TABLE_PREFIX."site_category.category_id in ($catlist)");
+            $result = $db->query("SELECT link_id FROM ".$prefix."links, ".$prefix."sites, ".$prefix."categories, ".$prefix."site_category where ".$prefix."links.site_id = ".$prefix."sites.site_id and ".$prefix."sites.site_id = ".$prefix."site_category.site_id and ".$prefix."site_category.category_id in ($catlist)");
             echo sql_errorstring(__FILE__,__LINE__);
             $row = $result->fetch();
             if (! $row) {
@@ -239,7 +240,7 @@ require_once __DIR__."/double_metaphone.php";
             else
                 $searchword = $wordarray[$words];
             $wordmd5 = substr(md5($searchword), 0, 1);
-            $stat = $db->prepare("SELECT distinct link_id, weight, domain FROM ".TABLE_PREFIX."link_keyword$wordmd5, ".TABLE_PREFIX."keywords WHERE ".TABLE_PREFIX."link_keyword$wordmd5.keyword_id= ".TABLE_PREFIX."keywords.keyword_id AND keyword=:keyword $domain_qry	ORDER	BY	weight	DESC");
+            $stat = $db->prepare("SELECT distinct link_id, weight, domain FROM ".$prefix."link_keyword$wordmd5, ".$prefix."keywords WHERE ".$prefix."link_keyword$wordmd5.keyword_id= ".$prefix."keywords.keyword_id AND keyword=:keyword $domain_qry	ORDER	BY	weight	DESC");
             $stat->execute(array(':keyword' => $searchword));
             echo sql_errorstring(__FILE__,__LINE__);
             $row = $stat->fetch();
@@ -335,7 +336,7 @@ require_once __DIR__."/double_metaphone.php";
                 /* words that are in the "nonpareil" list are excluded in searching
                    for alternatives */
                 if (!isset($matchless[$near_word])) {
-                    $stat = $db->prepare("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE keyword=:keyword");
+                    $stat = $db->prepare("SELECT keyword FROM ".$prefix."keywords WHERE keyword=:keyword");
                     if ($stat->execute(array(':keyword' => $near_word)) && $row=$stat->fetch()) {
                         $near_words[$word] = latin1_to_html($near_word);
                         $stat->closeCursor();
@@ -343,7 +344,7 @@ require_once __DIR__."/double_metaphone.php";
                 }
                 $near_word = $searchstr['+'][$idx] . "-" . $searchstr['+'][$idx+1];
                 if (!isset($matchless[$near_word])) {
-                    $stat = $db->prepare("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE keyword=:keyword");
+                    $stat = $db->prepare("SELECT keyword FROM ".$prefix."keywords WHERE keyword=:keyword");
                     if ($stat->execute(array(':keyword' => $near_word)) && $row=$stat->fetch()) {
                         $near_words[$word] = latin1_to_html($near_word);
                         $stat->closeCursor();
@@ -375,7 +376,7 @@ require_once __DIR__."/double_metaphone.php";
                 $where = "metaphone1='".$meta["primary"]."' OR metaphone2='".$meta["primary"]."'";
                 if (isset($meta["secondary"]) && strlen($meta["secondary"]) > 0)
                     $where .= " OR metaphone1='".$meta["secondary"]."' OR metaphone2='".$meta["secondary"]."'";
-                $result = $db->query("SELECT keyword FROM ".TABLE_PREFIX."keywords WHERE $where");
+                $result = $db->query("SELECT keyword FROM ".$prefix."keywords WHERE $where");
                 /* adapted from http://www.mdj.us/web-development/php-programming/creating-better-search-suggestions-with-sphider/
                    but using a double-metaphone filter (instead of SOUNDEX) and
                    adding a filter for accented characters */
@@ -467,7 +468,7 @@ require_once __DIR__."/double_metaphone.php";
             $fulltxt = "substring(fulltxt, 1, $length_of_link_desc)";
         }
 
-        $query = "SELECT distinct link_id, url, title, description, language, $fulltxt, size FROM ".TABLE_PREFIX."links WHERE link_id in ($inlist)";
+        $query = "SELECT distinct link_id, url, title, description, language, $fulltxt, size FROM ".$prefix."links WHERE link_id in ($inlist)";
         $result = $db->query($query);
         echo sql_errorstring(__FILE__,__LINE__);
 
@@ -489,7 +490,7 @@ require_once __DIR__."/double_metaphone.php";
             if (isset($row[4]) && $row[4] != null && strlen($row[4]) > 0 && strcasecmp($row[4], $language) != 0) {
                 $res[$i]['weight'] *= 0.5;
             }
-            $dom_result = $db->query("select domain from ".TABLE_PREFIX."domains where domain_id='".$domains[$row[0]]."'");
+            $dom_result = $db->query("select domain from ".$prefix."domains where domain_id='".$domains[$row[0]]."'");
             $dom_row = $dom_result->fetch();
             $res[$i]['domain'] = $dom_row[0];
             $i++;
