@@ -127,22 +127,14 @@ try {
      */
     date_default_timezone_set('Etc/UCT');
 
-    function getmicrotime()
+    function getmicrotime(): float
     {
-        [$usec, $sec] = explode(' ', microtime());
-
-        return (float) $usec + (float) $sec;
+        return (float)hrtime(true);
     }
 
-    function poweredby()
+    function poweredby(): string
     {
-        global $sph_messages;
-
-        echo $sph_messages['Powered by']
-            . '<a href="http://www.sphider.eu/">'
-            . '<img src="sphider-logo.png" border="0" '
-            . 'style="vertical-align: middle" alt="Sphider">'
-            . '</a>';
+        return \Templating\Manager::loadTemplate('powered-by.html');
     }
 
     function saveToLog($query, $elapsed, $results)
@@ -257,26 +249,12 @@ try {
             'cat_info' => $catInfo,
             'sph_messages' => \Language\Manager::$langStrings,
             'REQUEST' => $_REQUEST,
-            'results_count_options' => [
-                10,
-                20,
-                50,
-                100,
-                200
-            ]
+            'results_count_options' => constant('settings')['results_per_page'] ?? [10,20,50]
         ]
     );
 
 } catch (\Throwable $thrown) {
-    try {
-        \Templating\Manager::ShowTemplate(
-            'admin-error.html',
-            [
-                'exception' => $thrown,
-                'error_source_name' => 'Search Main Page'
-            ]
-        );
-    } catch (\Throwable $error) {
-        var_dump($error);
-    }
+
+    \Templating\Manager::ShowThrowable($thrown, 'Search Main Page');
+
 }

@@ -63,6 +63,22 @@ class Manager {
         echo self::loadTemplate($templateName, array_merge(self::$extraData, $data));
     }
 
+    public static function ShowThrowable(\Throwable $thrown, string $sourceName = '') {
+        http_response_code(500);
+        try {
+            self::ShowTemplate(
+                'admin-error.html',
+                [
+                    'exception' => $thrown,
+                    'error_source_name' => $sourceName
+                ]
+            );
+        } catch (\Throwable $e) {
+            var_dump($e);
+        }
+        exit(0);
+    }
+
     public static function parameters(): array {
         return self::$extraData;
     }

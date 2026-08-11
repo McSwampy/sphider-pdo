@@ -13,6 +13,9 @@ return [
     'version' => '2.0.0',
     'version_name' => 'beetroot',
     'default_language' => 'en',
+    'results_per_page' => [
+        10, 20, 50, 100, 200
+    ],
     'database' => [
         'host' => 'localhost',
         'username' => 'root',

@@ -128,7 +128,7 @@ class __TwigTemplate_280d61cb340e69f6b62438d28b1c8761 extends Template
         if ((($context["catid"] ?? null) > 0)) {
             // line 48
             yield "    <b>";
-            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Search", [], "any", false, false, false, 48), "html", null, true);
+            yield (string) $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["sph_messages"] ?? null), "Searchs", [], "any", false, false, false, 48), "html", null, true);
             yield "</b>
 ";
         }
