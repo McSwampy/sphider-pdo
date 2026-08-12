@@ -26,5 +26,11 @@ return [
     ],
     'admin' => [
         'email_account' => 'admin@localhost'
+    ],
+    'crawler' => [
+        'max_redirects' => 5,
+        'connection_timeout' => 10,
+        'timeout' => 30,
+        'user_agent' => 'Sphider/2.0.0'
     ]
 ];

@@ -80,10 +80,10 @@ class Handler
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS      => 5,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_USERAGENT      => 'Framework Crawler/1.0',
+            CURLOPT_MAXREDIRS      => constant('settings')['crawler']['max_redirects'],
+            CURLOPT_CONNECTTIMEOUT => constant('settings')['crawler']['connection_timeout'],
+            CURLOPT_TIMEOUT        => constant('settings')['crawler']['timeout'],
+            CURLOPT_USERAGENT      => constant('settings')['crawler']['user_agent']
         ]);
 
         $content = curl_exec($curl);
