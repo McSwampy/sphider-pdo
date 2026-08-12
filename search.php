@@ -16,7 +16,10 @@ try {
     // Define global settings
     define('settings', include __DIR__.'/settings/config.php');
 
+    // Load new framework
     require_once __DIR__ . '/framework/autoload.php';
+
+    // Load previous include files until fully namespaced
     require_once __DIR__ . '/include/autoload.php';
 
     $settingsDir = __DIR__ . '/settings';
