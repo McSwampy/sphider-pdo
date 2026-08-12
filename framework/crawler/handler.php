@@ -3,94 +3,88 @@
 /**
  * Handler
  *
- * Standard crawler handler to retrieve content via cURL
+ * Standard crawler handler to retrieve content via cURL.
+ *
+ * The handler is responsible for executing HTTP requests. URL parsing,
+ * validation, and URI inspection are handled by the URL class.
  *
  * @author McSwampy <mcswampy@sylph.co.za>
  * @copyright 2026 Sylph Syndicate
+ * 
+ * @example 
+ * $url = new URL('https://example.com/foo?bar=baz');
+ * $handler = new Handler($url);
+ * $content = $handler->fetch();
  *
  */
 class Handler
 {
-    private string $url;
+    /**
+     * URL to retrieve.
+     *
+     * @var URL
+     */
+    private URL $url;
 
-    public function __construct(string $url)
+    /**
+     * Create a crawler handler.
+     *
+     * @param URL $url URL to retrieve.
+     */
+    public function __construct(URL $url)
     {
-        $this->url = $this->validateUrl($url);
+        $this->url = $url;
     }
 
-    private function validateUrl(string $url): string
-    {
-        $url = trim($url);
-
-        if ($url === '') {
-            throw new \InvalidArgumentException('URL cannot be empty.');
-        }
-
-        if (strlen($url) > 2048) {
-            throw new \InvalidArgumentException('URL is too long.');
-        }
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid URL: "%s"', $url)
-            );
-        }
-
-        $parts = parse_url($url);
-
-        if ($parts === false) {
-            throw new \InvalidArgumentException(
-                sprintf('Unable to parse URL: "%s"', $url)
-            );
-        }
-
-        $scheme = strtolower($parts['scheme'] ?? '');
-
-        if (!in_array($scheme, ['http', 'https'], true)) {
-            throw new \InvalidArgumentException(
-                'URL must use either HTTP or HTTPS.'
-            );
-        }
-
-        if (empty($parts['host'])) {
-            throw new \InvalidArgumentException(
-                'URL must contain a hostname.'
-            );
-        }
-
-        // Credentials in crawler URLs are usually undesirable.
-        if (isset($parts['user']) || isset($parts['pass'])) {
-            throw new \InvalidArgumentException(
-                'URLs containing username/password credentials are not supported.'
-            );
-        }
-
-        // Fragments are never sent to the HTTP server.
-        if (isset($parts['fragment'])) {
-            $url = substr($url, 0, strrpos($url, '#'));
-        }
-
-        return $url;
-    }
-
+    /**
+     * Retrieve the content at the configured URL.
+     *
+     * @return string Response body.
+     *
+     * @throws \RuntimeException If cURL cannot be initialized, the request
+     *                           fails, or the server returns an HTTP error.
+     */
     public function fetch(): string
     {
-        $curl = curl_init($this->url);
+        $curl = curl_init((string) $this->url);
+
+        if ($curl === false) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Unable to initialize cURL for "%s".',
+                    $this->url
+                )
+            );
+        }
 
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS      => constant('settings')['crawler']['max_redirects'],
-            CURLOPT_CONNECTTIMEOUT => constant('settings')['crawler']['connection_timeout'],
-            CURLOPT_TIMEOUT        => constant('settings')['crawler']['timeout'],
-            CURLOPT_USERAGENT      => constant('settings')['crawler']['user_agent']
+
+            CURLOPT_MAXREDIRS => constant(
+                'settings'
+            )['crawler']['max_redirects'],
+
+            CURLOPT_CONNECTTIMEOUT => constant(
+                'settings'
+            )['crawler']['connection_timeout'],
+
+            CURLOPT_TIMEOUT => constant(
+                'settings'
+            )['crawler']['timeout'],
+
+            CURLOPT_USERAGENT => constant(
+                'settings'
+            )['crawler']['user_agent'],
         ]);
 
         $content = curl_exec($curl);
 
         if ($content === false) {
             $error = curl_error($curl);
-            
+
+            curl_close($curl);
+
             throw new \RuntimeException(
                 sprintf(
                     'Failed to retrieve "%s": %s',
@@ -101,6 +95,8 @@ class Handler
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
 
         if ($status >= 400) {
             throw new \RuntimeException(
@@ -115,7 +111,12 @@ class Handler
         return $content;
     }
 
-    public function getUrl(): string
+    /**
+     * Return the URL being crawled.
+     *
+     * @return URL URL instance.
+     */
+    public function getUrl(): URL
     {
         return $this->url;
     }
