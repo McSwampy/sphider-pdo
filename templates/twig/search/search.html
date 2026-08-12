@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>Sphider</title>
+    <title>{{ settings.site_name }}</title>
     <link type="text/css" rel="stylesheet" href="templates/standard/search.css">
     <style type="text/css">@import url("include/js_suggest/SuggestFramework.css");</style>
     <script type="text/javascript" src="include/js_suggest/SuggestFramework.js"></script>
@@ -10,7 +10,7 @@
 </HEAD>
 
 <BODY>
-<h1>Sphider</h1>
+<h1>{{ settings.site_name }}</h1>
 <center>
 <table cellpadding="5" cellspacing="1" class="searchBox">
 <tr>
@@ -209,11 +209,7 @@ if (!isset($adv_qry))
 <?php }?>
 
 
-<div class="divline">
-</div>
-<div id="powered_by">
-<!--If you want to remove this, please donate to the project at http://www.sphider.eu/donate.php-->
-<a href="http://www.sphider.eu/"><img src="sphider-logo.png" border="0" style="vertical-align: middle" alt="Sphider"></a>
-</div>
+<div class="divline"></div>
+{% include '/powered-by.html' %}
 </body>
 </html>

@@ -209,7 +209,7 @@ try {
             /*
              * Execute search.
              */
-            if ($query !== '') {
+            if (!empty($query)) {
                 $searchResults = get_search_results(
                     $query,
                     $start,

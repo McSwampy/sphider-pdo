@@ -17,3 +17,5 @@ Notable changes from Sphider 1.3.5:
  * The interface for "Did you mean?" search terms has changed and been extended.
  
 The original release of Sphider (by Ando Saabas) is now at 1.3.6. The fix that this update brings to 1.3.5 has been implemented in Sphider-PDO as well.
+
+Forked to composer libraries, namespacing and templates is now at version 2.0.0.

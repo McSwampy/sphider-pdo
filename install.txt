@@ -1,10 +1,11 @@
 ============================================
 Sphider - a lightweight search engine in PHP
-Version 1.3.10, PDO version
+Version 2.0.0, PDO version
 
 Installation and usage instructions
 Ando Saabas 2005-2007
 (PDO port by Thiadmer Riemersma, 2012-2016)
+(Framework & namespacing McSwampy 2022-2026)
 ============================================
 
 ------------
@@ -79,7 +80,10 @@ Documentation
 5.  Upload everything to your web server (not needed if you had unpacked all
     files on the server directly).
 
-6.  Open "install.php" script ("admin" directory) in your browser, which will
+6.  Install all required composer libraries if not ported. Use composer install
+    from the framework directory
+
+7.  Open "install.php" script ("admin" directory) in your browser, which will
     create the tables necessary for Sphider to operate.
 
     So, when your web server is at "www.mydomain.com" and you uploaded Sphider
@@ -92,7 +96,7 @@ Documentation
     it should end with a line that all is fine. If there is an error message, or
     if the table names do not appear, the installation failed.
 
-7.  Still in the web browser, open admin/admin.php in browser. Again, the full
+8.  Still in the web browser, open admin/admin.php in browser. Again, the full
     address would be:
 
         http://www.mydomain.com/search/admin/admin.php
@@ -100,7 +104,7 @@ Documentation
     You need to fill in your name and password (the ones in "auth.php"). Note
     that these are both case-sensitive.
 
-8.  Now you can add your site. The site refers to the first page where the
+9.  Now you can add your site. The site refers to the first page where the
     spidering starts. For technical reasons, this must be a true file; it may
     be a PHP file, but not a redirect. So, continuing the example that your
     site is at "www.mydomain.com", you could add:
@@ -109,17 +113,17 @@ Documentation
 
     (This assumes that there is a file "index.html" on the site.)
 
-9.  After adding the site, click on the button "options" next to the site and
+10.  After adding the site, click on the button "options" next to the site and
     then click on "index". The default spidering depth is 2, which is fine for
     a test, but see "Indexing options" (section 2) below.
 
-10. "search.php" is the default search page. You can how test the search engine.
+11. "search.php" is the default search page. You can how test the search engine.
     Assuming that you uploaded Sphider in the directory "search" at the root of
     the domain, the full address would be:
 
         http://www.mydomain.com/search/search.php
 
-11. If the test succeeds, it is recommended to delete the file install.php from
+12. If the test succeeds, it is recommended to delete the file install.php from
     the "admin" directory, so that nobody can (accidentally) recreate the
     database.
 
