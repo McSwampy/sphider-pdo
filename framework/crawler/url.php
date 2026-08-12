@@ -14,6 +14,7 @@ use InvalidArgumentException;
  * the request.
  *
  * @author McSwampy <mcswampy@sylph.co.za>
+ * @since 2.0.0
  * @copyright 2026 Sylph Syndicate
  * 
  */

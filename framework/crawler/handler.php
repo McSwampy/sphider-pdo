@@ -9,6 +9,7 @@
  * validation, and URI inspection are handled by the URL class.
  *
  * @author McSwampy <mcswampy@sylph.co.za>
+ * @since 2.0.0
  * @copyright 2026 Sylph Syndicate
  * 
  * @example 
